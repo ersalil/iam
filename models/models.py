@@ -105,3 +105,4 @@ class UserSession(Base):
     sessiontoken = Column(String)
     creationdate = Column(DateTime, default=datetime.utcnow)
     expirydate = Column(DateTime)
+    

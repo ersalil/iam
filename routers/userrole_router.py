@@ -13,6 +13,12 @@ def get_db():
     finally:
         db.close()
 
+@router.get('/{id}/')
+def get_role(id: int, db: Session = Depends(get_db)):
+    result = db.query(UserRole).filter(UserRole.roleid == id).first()
+    return result
+
+
 @router.post("/")
 def create_item(item: UserRoleCreate, db: Session = Depends(get_db)):
     db_userrole = UserRole(**item.dict())
@@ -21,12 +27,12 @@ def create_item(item: UserRoleCreate, db: Session = Depends(get_db)):
     db.refresh(db_userrole)
     return db_userrole
 
-@router.get("/{id}/")
-def read_item(id: int, db: Session = Depends(get_db)):
-    db_userrole = db.query(UserRole).filter(UserRole.RoleID == id).first()
-    if db_userrole is None:
-        raise HTTPException(status_code=404, detail="UserRole not found")
-    return db_userrole
+# @router.get("/{id}/")
+# def read_item(id: int, db: Session = Depends(get_db)):
+#     db_userrole = db.query(UserRole).filter(UserRole.RoleID == id).first()
+#     if db_userrole is None:
+#         raise HTTPException(status_code=404, detail="UserRole not found")
+#     return db_userrole
 
 @router.put("/{id}/")
 def update_item(id: int, item: UserRoleBase, db: Session = Depends(get_db)):
