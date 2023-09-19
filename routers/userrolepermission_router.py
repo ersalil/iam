@@ -4,20 +4,14 @@ from schemas.user_schemas import UserRolePermissionUpdate
 from database.database import SessionLocal
 from models.models import UserRolePermission
 from schemas.user_schemas import UserRolePermissionBase, UserRolePermissionCreate, UserRolePermissionUpdate
+from database.database import get_db
 
 router = APIRouter()
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 @router.post("/post")
 def create_item(item: UserRolePermissionCreate, db: Session = Depends(get_db)):
    
-    db_user_permission = UserRolePermission(**item.dict())
+    db_user_permission = UserRolePermission(**item)
     try:    
         db.add(db_user_permission)
         db.commit()

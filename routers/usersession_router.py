@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database.database import SessionLocal
 from models.models import UserSession
-from schemas.user_schemas import UserSessionBase, UserSessionCreate, UserSession
+from schemas.user_schemas import UserSessionBase, UserSessionCreate
 
 router = APIRouter()
 
@@ -60,7 +60,7 @@ def update_item(id: int, item: UserSessionBase, db: Session = Depends(get_db)):
 @router.delete("/{id}/")
 def delete_item(id: int, db: Session = Depends(get_db)):
     try:
-        db_user_session = db.query(UserSession).filter(UserSession.id == id).first()
+        db_user_session = db.query(UserSession).filter(UserSession.userid == id).first()
         
         if db_user_session is None:
             raise HTTPException(status_code=404, detail="User session not found")

@@ -1,13 +1,16 @@
 
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean, UUID
 from sqlalchemy.orm import relationship
 from database.database import Base, engine
 from datetime import datetime
+from sqlalchemy.dialects.postgresql import UUID as pgUUID
+from uuid import uuid4
 
 class ClientType(Base):
     __tablename__ = "clienttype"
 
-    clienttypeid = Column(Integer, primary_key=True, index=True)
+    clienttypeid = Column(pgUUID(as_uuid=True), primary_key=True, default=uuid4, unique=True, nullable=False)
+
     clientname = Column(String, index=True)
     description = Column(String)
 
@@ -16,8 +19,8 @@ class ClientType(Base):
 class UserRole(Base):
     __tablename__ = "userrole"
 
-    roleid = Column(Integer, primary_key=True, index=True)
-    clienttypeid = Column(Integer, ForeignKey('clienttype.clienttypeid'))
+    roleid = Column(pgUUID(as_uuid=True), primary_key=True, default=uuid4, unique=True, nullable=False)
+    clienttypeid = Column(pgUUID, ForeignKey('clienttype.clienttypeid'))
     rolename = Column(String, index=True)
     description = Column(String)
 
@@ -27,9 +30,9 @@ class UserRole(Base):
 class User(Base):
     __tablename__ = "users"
 
-    userid = Column(Integer, primary_key=True, index=True)
-    clienttypeid = Column(Integer, ForeignKey('clienttype.clienttypeid'))
-    roleid = Column(Integer, ForeignKey('userrole.roleid'))
+    userid = Column(pgUUID(as_uuid=True), primary_key=True, default=uuid4, unique=True, nullable=False)
+    clienttypeid = Column(pgUUID, ForeignKey('clienttype.clienttypeid'))
+    roleid = Column(pgUUID, ForeignKey('userrole.roleid'))
     username = Column(String, unique=True, index=True)
     email = Column(String, unique=True, index=True)
     phonenumber = Column(String, unique=True)
@@ -42,15 +45,15 @@ class User(Base):
 class AuthenticationMethod(Base):
     __tablename__ = "authmethod"
 
-    methodid = Column(Integer, primary_key=True, index=True)
+    methodid = Column(pgUUID(as_uuid=True), primary_key=True, default=uuid4, unique=True, nullable=False)
     methodtype = Column(String, index=True)
     description = Column(String)
 
 class UserAuthentication(Base):
     __tablename__ = "userauthentication"
 
-    userid = Column(Integer, ForeignKey('users.userid'), primary_key=True)
-    methodid = Column(Integer, ForeignKey('authmethod.methodid'), primary_key=True)
+    userid = Column(pgUUID, ForeignKey('users.userid'), primary_key=True)
+    methodid = Column(pgUUID, ForeignKey('authmethod.methodid'), primary_key=True)
     value = Column(String)
     verificationstatus = Column(Boolean)
     lastupdated = Column(DateTime, default=datetime.utcnow)
@@ -58,9 +61,9 @@ class UserAuthentication(Base):
 class OTP(Base):
     __tablename__ = "otp"
 
-    otpid = Column(Integer, primary_key=True, index=True)
-    userid = Column(Integer, ForeignKey('users.userid'))
-    methodid = Column(Integer, ForeignKey('authmethod.methodid'))
+    otpid = Column(pgUUID(as_uuid=True), primary_key=True, default=uuid4, unique=True, nullable=False)
+    userid = Column(pgUUID, ForeignKey('users.userid'))
+    methodid = Column(pgUUID, ForeignKey('authmethod.methodid'))
     code = Column(String)
     creationtime = Column(DateTime, default=datetime.utcnow)
     expirytime = Column(DateTime)
@@ -68,29 +71,29 @@ class OTP(Base):
 class Permission(Base):
     __tablename__ = "permission"
 
-    permissionid = Column(Integer, primary_key=True, index=True)
+    permissionid = Column(pgUUID(as_uuid=True), primary_key=True, default=uuid4, unique=True, nullable=False)
     permissionname = Column(String, index=True)
     description = Column(String)
 
 class UserRolePermission(Base):
     __tablename__ = "userrolepermission"
 
-    roleid = Column(Integer, ForeignKey('userrole.roleid'), primary_key=True)
-    permissionid = Column(Integer, ForeignKey('permission.permissionid'), primary_key=True)
+    roleid = Column(pgUUID, ForeignKey('userrole.roleid'), primary_key=True)
+    permissionid = Column(pgUUID, ForeignKey('permission.permissionid'), primary_key=True)
 
 class AuditLog(Base):
     __tablename__ = "auditlog"
 
-    logid = Column(Integer, primary_key=True, index=True)
-    userid = Column(Integer, ForeignKey('users.userid'))
+    logid = Column(pgUUID(as_uuid=True), primary_key=True, default=uuid4, unique=True, nullable=False)
+    userid = Column(pgUUID, ForeignKey('users.userid'))
     actiontype = Column(String)
     timestamp = Column(DateTime, default=datetime.utcnow)
 
 class GovernmentDocument(Base):
     __tablename__ = "govdocument"
 
-    documentid = Column(Integer, primary_key=True, index=True)
-    userid = Column(Integer, ForeignKey('users.userid'))
+    documentid = Column(pgUUID(as_uuid=True), primary_key=True, default=uuid4, unique=True, nullable=False)
+    userid = Column(pgUUID, ForeignKey('users.userid'))
     documenttype = Column(String)
     documentnumber = Column(String)
     expirydate = Column(DateTime)
@@ -100,8 +103,8 @@ class GovernmentDocument(Base):
 class UserSession(Base):
     __tablename__ = "usersession"
 
-    sessionid = Column(Integer, primary_key=True, index=True)
-    userid = Column(Integer, ForeignKey('users.userid'))
+    sessionid = Column(pgUUID(as_uuid=True), primary_key=True, default=uuid4, unique=True, nullable=False)
+    userid = Column(pgUUID, ForeignKey('users.userid'))
     sessiontoken = Column(String)
     creationdate = Column(DateTime, default=datetime.utcnow)
     expirydate = Column(DateTime)

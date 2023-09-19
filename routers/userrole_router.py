@@ -3,15 +3,10 @@ from sqlalchemy.orm import Session
 from database.database import SessionLocal
 from models.models import UserRole
 from schemas.userrole_schemas import UserRoleBase, UserRoleCreate
+from database.database import get_db
+from uid import unique_id
 
 router = APIRouter()
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 @router.get('/{id}/')
 def get_role(id: int, db: Session = Depends(get_db)):
@@ -21,7 +16,10 @@ def get_role(id: int, db: Session = Depends(get_db)):
 
 @router.post("/")
 def create_item(item: UserRoleCreate, db: Session = Depends(get_db)):
-    db_userrole = UserRole(**item.dict())
+    if type(item) != dict:
+        item = item.dict()
+    item['roleid'] = unique_id()
+    db_userrole = UserRole(**item)
     db.add(db_userrole)
     db.commit()
     db.refresh(db_userrole)

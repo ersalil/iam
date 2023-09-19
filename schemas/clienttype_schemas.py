@@ -1,6 +1,8 @@
 
 from pydantic import BaseModel
 from typing import Optional
+from uuid import UUID
+
 
 # Base model
 class ClientTypeBase(BaseModel):
@@ -17,7 +19,7 @@ class ClientTypeUpdate(ClientTypeBase):
 
 # Model for reading the ClientType details
 class ClientType(ClientTypeBase):
-    ClientTypeID: int
+    clienttypeid: UUID
 
     class Config:
         orm_mode = True

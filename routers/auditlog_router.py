@@ -3,11 +3,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database.database import SessionLocal
 from models.models import AuditLog
-from schemas.user_schemas import AuditLogBase, AuditLogCreate
-from datetime import datetime
-
-
+from schemas.user_schemas import AuditLogBase, AuditLogCreate, SignUp
 router = APIRouter()
+from database.database import get_db
 
 def get_db():
     db = SessionLocal()
@@ -15,6 +13,7 @@ def get_db():
         yield db
     finally:
         db.close()
+
 
 @router.post("/")
 def create_item(item: AuditLogCreate, db: Session = Depends(get_db)):

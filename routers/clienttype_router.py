@@ -3,19 +3,18 @@ from sqlalchemy.orm import Session
 from database.database import SessionLocal
 from models.models import ClientType
 from schemas.clienttype_schemas import ClientTypeBase, ClientTypeCreate
+from database.database import get_db
+from uid import unique_id
+
 
 router = APIRouter()
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
 @router.post("/")
 def create_item(item: ClientTypeCreate, db: Session = Depends(get_db)):
-    db_item = ClientType(**item.dict())
+    if type(item) != dict:
+            item = item.dict()
+    item['clienttypeid'] = unique_id()
+    db_item = ClientType(**item)
     db.add(db_item)
     db.commit()
     db.refresh(db_item)
@@ -42,8 +41,8 @@ def update_item(id: int, item: ClientTypeBase, db: Session = Depends(get_db)):
     return db_item
 
 @router.delete("/{id}/")
-def delete_item(id: int, db: Session = Depends(get_db)):
-    db_item = db.query(ClientType).filter(ClientType.ClientTypeID == id).first()
+def delete_item(id: str, db: Session = Depends(get_db)):
+    db_item = db.query(ClientType).filter(ClientType.clienttypeid == id).first()
     if db_item is None:
         raise HTTPException(status_code=404, detail="Item not found")
     

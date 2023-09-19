@@ -4,20 +4,17 @@ from sqlalchemy.orm import Session
 from database.database import SessionLocal
 from models.models import AuthenticationMethod
 from schemas.user_schemas import AuthenticationMethodBase
+from uid import unique_id
+from database.database import get_db
 
 router = APIRouter()
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 @router.post("/")
 def create_item(item: AuthenticationMethodBase, db: Session = Depends(get_db)):
     try:
-        db_authmethod = AuthenticationMethod(**item.dict())
+        item = item.dict()
+        item['methodid'] = unique_id()
+        db_authmethod = AuthenticationMethod(**item)
         db.add(db_authmethod)
         db.commit()
         db.refresh(db_authmethod)

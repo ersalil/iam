@@ -1,10 +1,12 @@
 
 from pydantic import BaseModel
 from typing import Optional
+from uuid import UUID
+
 
 # Base model
 class UserRoleBase(BaseModel):
-    clienttypeid: int
+    clienttypeid: UUID
     rolename: str
     description: Optional[str] = None
 
@@ -14,11 +16,11 @@ class UserRoleCreate(UserRoleBase):
 
 # Model for updating an existing UserRole
 class UserRoleUpdate(UserRoleBase):
-    pass
+    roleid: UUID
 
 # Model for reading the UserRole details
 class UserRole(UserRoleBase):
-    roleid: int
+    roleid: UUID
 
     class Config:
         orm_mode = True

@@ -8,13 +8,7 @@ from fastapi import status, HTTPException, Depends
 from database.database import SessionLocal
 from datetime import datetime
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+from database.database import get_db
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -22,7 +16,6 @@ def verify_password(plain_password, hashed_password):
 def hash_password(plain_password):
     hashed_password = pwd_context.hash(plain_password)
     return hashed_password
-
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -37,8 +30,7 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_
         payload = decode_token(token)
     except JWTError:
         raise credentials_exception
-
-    user = db.query(User).filter(User.username == payload.username).first()
+    user = db.query(User).filter(User.email == payload.useremail).first()
     if user is None:
         raise credentials_exception
     return user
@@ -50,13 +42,13 @@ def get_password_hash(password):
 def decode_token(token: str):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        role_id: int = payload.get("role_id")
-        client_type_id: int = payload.get("client_type_id")
-        expires_at: datetime = payload.get("exp")
-        if username is None or role_id is None or client_type_id is None:
+        useremail: str = payload.get("email")
+        role_id: int = payload.get("roleid")
+        client_type_id: int = payload.get("clienttypeid")
+        expires_at: datetime = datetime.fromtimestamp(payload.get("exp"))
+        if useremail is None or role_id is None or client_type_id is None or expires_at < datetime.now():
             raise credentials_exception
-        token_data = TokenData(username=username, role_id=role_id, client_type_id=client_type_id, expires_at=expires_at)
+        token_data = TokenData(useremail=useremail, role_id=role_id, client_type_id=client_type_id, expires_at=expires_at)
     except JWTError:
         raise credentials_exception
     return token_data

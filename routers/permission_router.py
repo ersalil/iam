@@ -4,26 +4,23 @@ from sqlalchemy.orm import Session
 from database.database import SessionLocal
 from schemas.user_schemas import PermissionBase, PermissionCreate
 from models.models import Permission
+from database.database import get_db
+from uid import unique_id
 
 router = APIRouter()
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 @router.post("/")
 def create_item(item: PermissionCreate, db: Session = Depends(get_db)):
     try:
-        db_permission = Permission(**item.dict())
-        
+        if type(item) != dict:
+            item = item.dict()
+        item['permissionid'] = unique_id()
+        db_permission = Permission(**item)
         db.add(db_permission)
         db.commit()
         db.refresh(db_permission)
-        
         return db_permission
+    
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=400, detail=str(e))

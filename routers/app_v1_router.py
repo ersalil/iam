@@ -2,12 +2,13 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 
 # Import individual routers from their respective files
-from . import user_router, clienttype_router, userrole_router, userrolepermission_router,usersession_router,permission_router, authenticationmethod_router
+from . import auth_router, user_router, clienttype_router, userrole_router, userrolepermission_router,usersession_router,permission_router, authenticationmethod_router, auditlog_router
 
 router = APIRouter()
 
 # Include the individual routers under this parent router
 router.include_router(user_router.router, prefix="/user")
+router.include_router(auth_router.router, prefix="/auth")
 router.include_router(clienttype_router.router, prefix="/clienttype")
 router.include_router(userrole_router.router, prefix="/userrole")
 router.include_router(authenticationmethod_router.router, prefix="/authenticationmethod")
@@ -15,7 +16,7 @@ router.include_router(authenticationmethod_router.router, prefix="/authenticatio
 # router.include_router(otp_router)
 router.include_router(permission_router.router, prefix="/permission")
 router.include_router(userrolepermission_router.router, prefix="/userrolepermission")
-# router.include_router(auditlog_router.router, prefix="/")
+router.include_router(auditlog_router.router, prefix="/auditlog")
 # router.include_router(governmentdocument_router.router, prefix="/governmentdocument")
 router.include_router(usersession_router.router, prefix="/usersession")
 
