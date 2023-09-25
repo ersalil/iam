@@ -21,6 +21,34 @@ class TokenData(BaseModel):
     role_id: Optional[UUID] = None
     client_type_id: Optional[UUID] = None
     expires_at: Optional[datetime]
+    
+from sqlalchemy.orm import class_mapper
+
+def object_as_dict(obj):
+    """
+    Convert an SQLAlchemy ORM object to a dictionary.
+    """
+    serialized_data = {}
+    for column in obj.__table__.columns:
+        serialized_data[column.name] = getattr(obj, column.name)
+
+    # Handle relationships
+    for name, relation in class_mapper(obj.__class__).relationships.items():
+        value = getattr(obj, name)
+        if value is None:
+            serialized_data[name] = None
+        elif relation.uselist:
+            serialized_data[name] = [object_as_dict(item) for item in value]
+        else:
+            serialized_data[name] = object_as_dict(value)
+
+    return serialized_data
+
+# def user_to_dict(user):
+#     data = {}
+#     for column in user.__table__.columns:
+#         data[column.name] = getattr(user, column.name)
+#     return data
 
 def create_access_token(data: UserBase, expires_delta: timedelta = None, db: Session = Depends(get_db)):    
 
@@ -45,5 +73,7 @@ def create_access_token(data: UserBase, expires_delta: timedelta = None, db: Ses
     }
     if not create_item(item=session, db=db):
         raise Exception("Could not create new session.")
-
-    return {"access_token": encoded_jwt, "access_type": 'bearer'}
+    print(type(data))
+    user_dict = data.to_dict(data)
+    print(user_dict)
+    return {"Data": user_dict,"access_token": encoded_jwt, "access_type": 'bearer'}

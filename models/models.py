@@ -41,6 +41,12 @@ class User(Base):
     lastlogin = Column(DateTime)
 
     roles = relationship("UserRole", back_populates="users")
+    
+    def to_dict(self, user):
+        data = {}
+        for column in user.__table__.columns:
+            data[column.name] = getattr(user, column.name)
+        return data
 
 class AuthenticationMethod(Base):
     __tablename__ = "authmethod"
