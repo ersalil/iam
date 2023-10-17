@@ -1,5 +1,5 @@
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.orm import Session
 from database.database import SessionLocal
 from schemas.user_schemas import PermissionBase, PermissionCreate
@@ -69,3 +69,36 @@ def delete_item(id: int, db: Session = Depends(get_db)):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/bulk/")
+def create_bulk_permissions(items: list[PermissionCreate], db: Session = Depends(get_db)):
+    try:
+        
+        created_permissions = []
+
+        for item in items:
+            print(item)
+            if type(item) != dict:
+                item = item.dict()
+            item['permissionid'] = unique_id()
+            db_permission = Permission(**item)
+            db.add(db_permission)
+            db.commit()
+            db.refresh(db_permission)
+            print(created_permissions)
+            created_permissions.append(db_permission.to_dict(db_permission))
+
+        return created_permissions
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
+    
+def get_clienttype_id(request: Request) -> int:
+    clienttypeid = request.query_params.get('clienttypeid')
+    if clienttypeid is None:
+        raise HTTPException(status_code=400, detail="Client Type ID is required")
+    return int(clienttypeid)
+
+

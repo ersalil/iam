@@ -7,7 +7,8 @@ from schemas.user_schemas import UserAuthenticationBase
 from security.auth import hash_password
 from datetime import datetime
 from database.database import get_db
-import cv2, pytesseract
+import pytesseract
+#import opencv
 from fastapi import FastAPI, UploadFile, Form, HTTPException
 from fastapi.responses import JSONResponse
 from starlette.status import HTTP_400_BAD_REQUEST
@@ -57,7 +58,7 @@ async def scan_document(document: UploadFile = Form(...), document_type: str = F
         # Read the image
         image_content = await document.read()
         image_np = np.frombuffer(image_content, np.uint8)
-        image = cv2.imdecode(image_np, cv2.IMREAD_COLOR)
+        image = opencv.imdecode(image_np, opencv.IMREAD_COLOR)
         
         extracted_data = scan_document(image, document_type)
 

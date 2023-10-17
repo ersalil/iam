@@ -26,7 +26,11 @@ class UserRole(Base):
 
     clienttype = relationship("ClientType", back_populates="roles")
     users = relationship("User", back_populates="roles")
-
+    def to_dict(self, userrole):
+        data = {}
+        for column in userrole.__table__.columns:
+            data[column.name] = getattr(userrole, column.name)
+        return data
 class User(Base):
     __tablename__ = "users"
 
@@ -80,6 +84,12 @@ class Permission(Base):
     permissionid = Column(pgUUID(as_uuid=True), primary_key=True, default=uuid4, unique=True, nullable=False)
     permissionname = Column(String, index=True)
     description = Column(String)
+    
+    def to_dict(self, permission):
+        data = {}
+        for column in permission.__table__.columns:
+            data[column.name] = getattr(permission, column.name)
+        return data
 
 class UserRolePermission(Base):
     __tablename__ = "userrolepermission"

@@ -73,7 +73,5 @@ def create_access_token(data: UserBase, expires_delta: timedelta = None, db: Ses
     }
     if not create_item(item=session, db=db):
         raise Exception("Could not create new session.")
-    print(type(data))
     user_dict = data.to_dict(data)
-    print(user_dict)
     return {"Data": user_dict,"access_token": encoded_jwt, "access_type": 'bearer'}

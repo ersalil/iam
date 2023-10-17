@@ -12,7 +12,7 @@ class UserRoleBase(BaseModel):
 
 # Model for creating a new UserRole
 class UserRoleCreate(UserRoleBase):
-    pass
+    permission_id: Optional[list] = None
 
 # Model for updating an existing UserRole
 class UserRoleUpdate(UserRoleBase):
